@@ -1,10 +1,10 @@
 package com.inventoryms.api.controller;
 
 import com.inventoryms.api.dto.ErrorResponse;
-import com.inventoryms.api.dto.MessageResponse;
-import com.inventoryms.api.dto.auth.AuthResponse;
+import com.inventoryms.api.dto.ApiResponse;
 import com.inventoryms.api.dto.auth.LoginRequest;
 import com.inventoryms.api.dto.auth.LoginResult;
+import com.inventoryms.api.dto.user.UserResponse;
 import com.inventoryms.api.entity.User;
 import com.inventoryms.api.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +42,8 @@ public class AuthController {
                     .maxAge(Duration.ofDays(1))
                     .build();
 
-            AuthResponse response = new AuthResponse(true, user.getId(), user.getUsername(), user.getRole().name());
+            UserResponse userResponse = new UserResponse(user);
+            ApiResponse<UserResponse> response = new ApiResponse<>(true, "Login successful", userResponse);
 
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
         } catch(BadCredentialsException exception) {
@@ -65,7 +66,8 @@ public class AuthController {
                 .maxAge(0)
                 .build();
 
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new MessageResponse("Logged out successfuly"));
+        ApiResponse<Void> response = new ApiResponse<>(true, "Logged out successfully", null);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
     }
 
     @GetMapping("/me")
@@ -77,7 +79,8 @@ public class AuthController {
         }
 
         User user = (User) authentication.getPrincipal();
-        AuthResponse response = new AuthResponse(true, user.getId(), user.getUsername(), user.getRole().name());
+        UserResponse userResponse = new UserResponse(user);
+        ApiResponse<UserResponse> response = new ApiResponse<>(true, "User fetched successfully", userResponse);
         
         return ResponseEntity.ok(response);
     }

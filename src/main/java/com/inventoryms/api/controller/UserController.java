@@ -3,6 +3,7 @@ package com.inventoryms.api.controller;
 import com.inventoryms.api.dto.user.CreateUserRequest;
 import com.inventoryms.api.dto.user.UserRequest;
 import com.inventoryms.api.dto.user.UserResponse;
+import com.inventoryms.api.dto.ApiResponse;
 import com.inventoryms.api.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,24 +24,28 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
+        ApiResponse<List<UserResponse>> response = new ApiResponse<>(true, "Users fetched successfully", userService.getAllUsers());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable int id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable int id) {
+        ApiResponse<UserResponse> response = new ApiResponse<>(true, "User fetched successfully", userService.getUserById(id));
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable int id, @Valid @RequestBody UserRequest request) {
-        return ResponseEntity.ok(userService.update(id, request));
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable int id, @Valid @RequestBody UserRequest request) {
+        ApiResponse<UserResponse> response = new ApiResponse<>(true, "User updated successfully", userService.update(id, request));
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
-        return ResponseEntity.ok(userService.create(request));
+    public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody CreateUserRequest request) {
+        ApiResponse<UserResponse> response = new ApiResponse<>(true, "User created successfully", userService.create(request));
+        return ResponseEntity.ok(response);
     }
 
 }
