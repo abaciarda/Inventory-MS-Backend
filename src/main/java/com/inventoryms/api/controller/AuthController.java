@@ -20,7 +20,6 @@ import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class AuthController {
     private final AuthService authService;
 
@@ -34,13 +33,19 @@ public class AuthController {
             LoginResult result = authService.login(request);
             User user = result.getUser();
 
-            ResponseCookie cookie = ResponseCookie.from("access_token", result.getToken())
+            String origin = servletRequest.getHeader(HttpHeaders.ORIGIN);
+            ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from("access_token", result.getToken())
                     .httpOnly(true)
-                    .secure(false)
-                    .sameSite("Lax")
+                    .secure(true)
+                    .sameSite("None")
                     .path("/")
-                    .maxAge(Duration.ofDays(1))
-                    .build();
+                    .maxAge(Duration.ofDays(1));
+                    
+            if (origin != null && origin.contains("ardaabaci.com")) {
+                cookieBuilder.domain(".ardaabaci.com");
+            }
+            
+            ResponseCookie cookie = cookieBuilder.build();
 
             UserResponse userResponse = new UserResponse(user);
             ApiResponse<UserResponse> response = new ApiResponse<>(true, "Login successful", userResponse);
@@ -57,14 +62,20 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
-        ResponseCookie cookie = ResponseCookie.from("access_token", "")
+    public ResponseEntity<?> logout(HttpServletRequest servletRequest) {
+        String origin = servletRequest.getHeader(HttpHeaders.ORIGIN);
+        ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from("access_token", "")
                 .httpOnly(true)
-                .secure(false)
-                .sameSite("Lax")
+                .secure(true)
+                .sameSite("None")
                 .path("/")
-                .maxAge(0)
-                .build();
+                .maxAge(0);
+                
+        if (origin != null && origin.contains("ardaabaci.com")) {
+            cookieBuilder.domain(".ardaabaci.com");
+        }
+        
+        ResponseCookie cookie = cookieBuilder.build();
 
         ApiResponse<Void> response = new ApiResponse<>(true, "Logged out successfully", null);
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
