@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Duration;
 
@@ -22,6 +23,9 @@ import java.time.Duration;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
+
+    @Value("${app.cookie.domain}")
+    private String cookieDomain;
 
     public AuthController(AuthService authService) {
         this.authService = authService;
@@ -41,8 +45,8 @@ public class AuthController {
                     .path("/")
                     .maxAge(Duration.ofDays(1));
                     
-            if (origin != null && origin.contains("ardaabaci.com")) {
-                cookieBuilder.domain(".ardaabaci.com");
+            if (origin != null && origin.contains(cookieDomain)) {
+                cookieBuilder.domain("." + cookieDomain);
             }
             
             ResponseCookie cookie = cookieBuilder.build();
@@ -71,8 +75,8 @@ public class AuthController {
                 .path("/")
                 .maxAge(0);
                 
-        if (origin != null && origin.contains("ardaabaci.com")) {
-            cookieBuilder.domain(".ardaabaci.com");
+        if (origin != null && origin.contains(cookieDomain)) {
+            cookieBuilder.domain("." + cookieDomain);
         }
         
         ResponseCookie cookie = cookieBuilder.build();

@@ -23,6 +23,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -47,6 +48,7 @@ class AuthControllerTest {
         testUser.setId(1);
         testUser.setUsername("testuser");
         testUser.setRole(Role.SME_STAFF);
+        ReflectionTestUtils.setField(authController, "cookieDomain", "ardaabaci.com");
     }
 
     @AfterEach
