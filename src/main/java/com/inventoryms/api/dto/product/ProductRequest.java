@@ -6,19 +6,22 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 public class ProductRequest {
-    @NotBlank(message = "Ürün adı boş bırakılamaz")
+    @NotBlank(message = "Product name cannot be blank")
     private String name;
 
-    @NotBlank(message = "SKU kodu boş bırakılamaz")
+    @NotBlank(message = "SKU cannot be blank")
     private String sku;
 
-    @NotNull(message = "Maliyet fiyatı boş bırakılamaz")
-    @Positive(message = "Maliyet fiyatı sıfırdan büyük olmalıdır")
+    @NotNull(message = "Cost price cannot be null")
+    @Positive(message = "Cost price must be greater than zero")
     private BigDecimal costPrice;
 
-    @NotBlank(message = "Maliyet fiyatı boş bırakılamaz")
-    @Positive(message = "Satış fiyatı sıfırdan büyük olmalıdır")
+    @NotNull(message = "Sales price cannot be null")
+    @Positive(message = "Sales price must be greater than zero")
     private BigDecimal salesPrice;
+
+    @NotNull(message = "Category ID cannot be null")
+    private Integer categoryId;
 
     public String getSku() {
         return sku;
@@ -26,7 +29,6 @@ public class ProductRequest {
 
     public String getName(){
         return name;
-
     }
 
     public BigDecimal getSalesPrice() {
@@ -44,6 +46,7 @@ public class ProductRequest {
     public void setSalesPrice(BigDecimal salesPrice) {
         this.salesPrice = salesPrice;
     }
+
     public BigDecimal getCostPrice() {
         return costPrice;
     }
@@ -52,4 +55,11 @@ public class ProductRequest {
         this.costPrice = costPrice;
     }
 
+    public Integer getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Integer categoryId) {
+        this.categoryId = categoryId;
+    }
 }

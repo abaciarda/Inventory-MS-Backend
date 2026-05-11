@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="product_id")
     private int id;
 
     @Column(nullable=false,length = 255)
@@ -23,6 +22,9 @@ public class Product {
 
     @Column(name="sales_price",nullable=false,precision=19,scale=2)
     private BigDecimal salesPrice;
+
+    @Column(name="category_id")
+    private Integer categoryId;
 
     public void setId(int id) {
         this.id = id;
@@ -62,5 +64,13 @@ public class Product {
 
     public int getId() {
         return id;
+    }
+
+    public Integer getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Integer categoryId) {
+        this.categoryId = categoryId;
     }
 }

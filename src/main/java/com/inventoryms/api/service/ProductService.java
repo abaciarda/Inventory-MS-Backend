@@ -16,11 +16,11 @@ public class ProductService {
 
     public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
-
     }
+
     public ProductResponse createProduct(ProductRequest productRequest) {
         if(productRepository.existsBySku(productRequest.getSku())){
-            throw new RuntimeException("Bu SKU koduna sahip bir ürün zaten mevcut!");
+            throw new RuntimeException("A product with this SKU already exists!");
         }
 
         Product product = new Product();
@@ -28,29 +28,43 @@ public class ProductService {
         product.setSku(productRequest.getSku());
         product.setCostPrice(productRequest.getCostPrice());
         product.setSalesPrice(productRequest.getSalesPrice());
+        product.setCategoryId(productRequest.getCategoryId());
 
         Product savedProduct = productRepository.save(product);
 
-        return convertToResponse(savedProduct);
-
+        return new ProductResponse(savedProduct);
     }
+
     public List<ProductResponse> getAllProducts() {
         List<Product> products = productRepository.findAll();
-
-        return products.stream().map(this::convertToResponse).collect(Collectors.toList());
+        return products.stream().map(ProductResponse::new).collect(Collectors.toList());
     }
+
     public ProductResponse getProductById(int id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Ürün bulunamadı! ID: "+ id));
-        return convertToResponse(product);
+        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found! ID: " + id));
+        return new ProductResponse(product);
     }
-    private ProductResponse convertToResponse(Product product) {
-        ProductResponse productResponse = new ProductResponse();
-        productResponse.setId(product.getId());
-        productResponse.setName(product.getName());
-        productResponse.setSku(product.getSku());
-        productResponse.setCostPrice(product.getCostPrice());
-        productResponse.setSalesPrice(product.getSalesPrice());
-        return productResponse;
 
+    public ProductResponse updateProduct(int id, ProductRequest productRequest) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found! ID: " + id));
+
+        if (!product.getSku().equals(productRequest.getSku()) && productRepository.existsBySku(productRequest.getSku())) {
+            throw new RuntimeException("A product with this SKU already exists!");
+        }
+
+        product.setName(productRequest.getName());
+        product.setSku(productRequest.getSku());
+        product.setCostPrice(productRequest.getCostPrice());
+        product.setSalesPrice(productRequest.getSalesPrice());
+        product.setCategoryId(productRequest.getCategoryId());
+
+        Product updatedProduct = productRepository.save(product);
+
+        return new ProductResponse(updatedProduct);
+    }
+
+    public void deleteProduct(int id) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found! ID: " + id));
+        productRepository.delete(product);
     }
 }

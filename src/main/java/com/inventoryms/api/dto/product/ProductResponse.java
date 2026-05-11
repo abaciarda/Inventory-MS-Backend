@@ -1,5 +1,6 @@
 package com.inventoryms.api.dto.product;
 
+import com.inventoryms.api.entity.Product;
 import java.math.BigDecimal;
 
 public class ProductResponse {
@@ -8,6 +9,18 @@ public class ProductResponse {
     private String sku;
     private BigDecimal costPrice;
     private BigDecimal salesPrice;
+    private Integer categoryId;
+
+    public ProductResponse() {}
+
+    public ProductResponse(Product product) {
+        this.id = product.getId();
+        this.name = product.getName();
+        this.sku = product.getSku();
+        this.costPrice = product.getCostPrice();
+        this.salesPrice = product.getSalesPrice();
+        this.categoryId = product.getCategoryId();
+    }
 
     public int getId() {
         return id;
@@ -47,5 +60,13 @@ public class ProductResponse {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Integer getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Integer categoryId) {
+        this.categoryId = categoryId;
     }
 }
