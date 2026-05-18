@@ -23,8 +23,13 @@ public class Product {
     @Column(name="sales_price",nullable=false,precision=19,scale=2)
     private BigDecimal salesPrice;
 
-    @Column(name="category_id")
-    private Integer categoryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "stock_id", referencedColumnName = "id")
+    private Stock stock;
 
     public void setId(int id) {
         this.id = id;
@@ -66,11 +71,19 @@ public class Product {
         return id;
     }
 
-    public Integer getCategoryId() {
-        return categoryId;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setCategoryId(Integer categoryId) {
-        this.categoryId = categoryId;
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public Stock getStock() {
+        return stock;
+    }
+
+    public void setStock(Stock stock) {
+        this.stock = stock;
     }
 }

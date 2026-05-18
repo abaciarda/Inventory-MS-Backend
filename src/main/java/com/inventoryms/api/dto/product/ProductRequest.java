@@ -23,6 +23,9 @@ public class ProductRequest {
     @NotNull(message = "Category ID cannot be null")
     private Integer categoryId;
 
+    @NotNull(message = "Initial stock quantity cannot be null")
+    private Integer initialStockQuantity;
+
     public String getSku() {
         return sku;
     }
@@ -61,5 +64,13 @@ public class ProductRequest {
 
     public void setCategoryId(Integer categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public Integer getInitialStockQuantity() {
+        return initialStockQuantity;
+    }
+
+    public void setInitialStockQuantity(Integer initialStockQuantity) {
+        this.initialStockQuantity = initialStockQuantity;
     }
 }

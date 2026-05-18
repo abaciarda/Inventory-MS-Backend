@@ -19,7 +19,7 @@ public class ProductResponse {
         this.sku = product.getSku();
         this.costPrice = product.getCostPrice();
         this.salesPrice = product.getSalesPrice();
-        this.categoryId = product.getCategoryId();
+        this.categoryId = product.getCategory() != null ? product.getCategory().getId() : null;
     }
 
     public int getId() {

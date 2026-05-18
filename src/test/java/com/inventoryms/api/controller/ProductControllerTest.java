@@ -3,6 +3,7 @@ package com.inventoryms.api.controller;
 import com.inventoryms.api.dto.ApiResponse;
 import com.inventoryms.api.dto.product.ProductRequest;
 import com.inventoryms.api.dto.product.ProductResponse;
+import com.inventoryms.api.entity.Category;
 import com.inventoryms.api.entity.Product;
 import com.inventoryms.api.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +42,9 @@ class ProductControllerTest {
         product.setSku("SKU-TEST-1");
         product.setCostPrice(new BigDecimal("10.00"));
         product.setSalesPrice(new BigDecimal("20.00"));
-        product.setCategoryId(1);
+        Category category = new Category();
+        category.setId(1);
+        product.setCategory(category);
         testProductResponse = new ProductResponse(product);
     }
 
@@ -53,6 +56,7 @@ class ProductControllerTest {
         request.setCostPrice(new BigDecimal("10.00"));
         request.setSalesPrice(new BigDecimal("20.00"));
         request.setCategoryId(1);
+        request.setInitialStockQuantity(10);
 
         when(productService.createProduct(any(ProductRequest.class))).thenReturn(testProductResponse);
 
@@ -105,6 +109,7 @@ class ProductControllerTest {
         request.setCostPrice(new BigDecimal("15.00"));
         request.setSalesPrice(new BigDecimal("25.00"));
         request.setCategoryId(2);
+        request.setInitialStockQuantity(10);
 
         Product updatedProduct = new Product();
         updatedProduct.setId(1);
@@ -112,7 +117,9 @@ class ProductControllerTest {
         updatedProduct.setSku("SKU-UPDATED");
         updatedProduct.setCostPrice(new BigDecimal("15.00"));
         updatedProduct.setSalesPrice(new BigDecimal("25.00"));
-        updatedProduct.setCategoryId(2);
+        Category category2 = new Category();
+        category2.setId(2);
+        updatedProduct.setCategory(category2);
         ProductResponse updatedResponse = new ProductResponse(updatedProduct);
 
         when(productService.updateProduct(eq(1), any(ProductRequest.class))).thenReturn(updatedResponse);

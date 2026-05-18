@@ -2,14 +2,22 @@ package com.inventoryms.api.service;
 
 import com.inventoryms.api.dto.product.ProductRequest;
 import com.inventoryms.api.dto.product.ProductResponse;
+import com.inventoryms.api.entity.Category;
 import com.inventoryms.api.entity.Product;
+import com.inventoryms.api.repository.CategoryRepository;
 import com.inventoryms.api.repository.ProductRepository;
+import com.inventoryms.api.repository.StockMovementRepository;
+import com.inventoryms.api.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -25,6 +33,15 @@ class ProductServiceTest {
     @Mock
     private ProductRepository productRepository;
 
+    @Mock
+    private CategoryRepository categoryRepository;
+
+    @Mock
+    private StockMovementRepository stockMovementRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
     @InjectMocks
     private ProductService productService;
 
@@ -39,7 +56,9 @@ class ProductServiceTest {
         testProduct.setSku("SKU-TEST-1");
         testProduct.setCostPrice(new BigDecimal("10.00"));
         testProduct.setSalesPrice(new BigDecimal("20.00"));
-        testProduct.setCategoryId(1);
+        Category category = new Category();
+        category.setId(1);
+        testProduct.setCategory(category);
 
         testProductRequest = new ProductRequest();
         testProductRequest.setName("Test Product");
@@ -47,10 +66,18 @@ class ProductServiceTest {
         testProductRequest.setCostPrice(new BigDecimal("10.00"));
         testProductRequest.setSalesPrice(new BigDecimal("20.00"));
         testProductRequest.setCategoryId(1);
+        testProductRequest.setInitialStockQuantity(10);
     }
 
     @Test
     void createProduct_WhenSkuDoesNotExist_ShouldCreateAndReturnProductResponse() {
+        SecurityContext context = mock(SecurityContext.class);
+        when(context.getAuthentication()).thenReturn(new UsernamePasswordAuthenticationToken("testuser", "password"));
+        SecurityContextHolder.setContext(context);
+
+        Category category = new Category();
+        category.setId(1);
+        when(categoryRepository.findById(1)).thenReturn(Optional.of(category));
         when(productRepository.existsBySku("SKU-TEST-1")).thenReturn(false);
         when(productRepository.save(any(Product.class))).thenReturn(testProduct);
 
@@ -115,6 +142,7 @@ class ProductServiceTest {
         updateRequest.setCostPrice(new BigDecimal("15.00"));
         updateRequest.setSalesPrice(new BigDecimal("25.00"));
         updateRequest.setCategoryId(2);
+        updateRequest.setInitialStockQuantity(10);
 
         Product updatedProduct = new Product();
         updatedProduct.setId(1);
@@ -122,8 +150,11 @@ class ProductServiceTest {
         updatedProduct.setSku("SKU-UPDATED");
         updatedProduct.setCostPrice(new BigDecimal("15.00"));
         updatedProduct.setSalesPrice(new BigDecimal("25.00"));
-        updatedProduct.setCategoryId(2);
+        Category category2 = new Category();
+        category2.setId(2);
+        updatedProduct.setCategory(category2);
 
+        when(categoryRepository.findById(2)).thenReturn(Optional.of(category2));
         when(productRepository.findById(1)).thenReturn(Optional.of(testProduct));
         when(productRepository.existsBySku("SKU-UPDATED")).thenReturn(false);
         when(productRepository.save(any(Product.class))).thenReturn(updatedProduct);
@@ -146,6 +177,7 @@ class ProductServiceTest {
         updateRequest.setCostPrice(new BigDecimal("15.00"));
         updateRequest.setSalesPrice(new BigDecimal("25.00"));
         updateRequest.setCategoryId(2);
+        updateRequest.setInitialStockQuantity(10);
 
         when(productRepository.findById(1)).thenReturn(Optional.of(testProduct));
         when(productRepository.existsBySku("SKU-TAKEN")).thenReturn(true);

@@ -2,8 +2,17 @@ package com.inventoryms.api.service;
 
 import com.inventoryms.api.dto.product.ProductRequest;
 import com.inventoryms.api.dto.product.ProductResponse;
+import com.inventoryms.api.entity.Category;
 import com.inventoryms.api.entity.Product;
+import com.inventoryms.api.entity.Stock;
+import com.inventoryms.api.entity.MovementType;
+import com.inventoryms.api.entity.StockMovement;
+import com.inventoryms.api.entity.User;
+import com.inventoryms.api.repository.CategoryRepository;
 import com.inventoryms.api.repository.ProductRepository;
+import com.inventoryms.api.repository.StockMovementRepository;
+import com.inventoryms.api.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,9 +22,15 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final StockMovementRepository stockMovementRepository;
+    private final UserRepository userRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, StockMovementRepository stockMovementRepository, UserRepository userRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+        this.stockMovementRepository = stockMovementRepository;
+        this.userRepository = userRepository;
     }
 
     public ProductResponse createProduct(ProductRequest productRequest) {
@@ -28,9 +43,32 @@ public class ProductService {
         product.setSku(productRequest.getSku());
         product.setCostPrice(productRequest.getCostPrice());
         product.setSalesPrice(productRequest.getSalesPrice());
-        product.setCategoryId(productRequest.getCategoryId());
+        Category category = categoryRepository.findById(productRequest.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found! ID: " + productRequest.getCategoryId()));
+        product.setCategory(category);
+
+        Stock stock = new Stock();
+        stock.setCurrentQuantity(productRequest.getInitialStockQuantity());
+        stock.setMinThreshold(0);
+        product.setStock(stock);
 
         Product savedProduct = productRepository.save(product);
+
+        if (productRequest.getInitialStockQuantity() > 0) {
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            String username = (principal instanceof User) ? ((User) principal).getUsername() : principal.toString();
+            User user = userRepository.findByUsername(username).orElse(null);
+            
+            if (user != null) {
+                StockMovement movement = new StockMovement();
+                movement.setProduct(savedProduct);
+                movement.setUser(user);
+                movement.setType(MovementType.IN);
+                movement.setQuantity(productRequest.getInitialStockQuantity());
+                movement.setReason("Initial stock from product creation");
+                stockMovementRepository.save(movement);
+            }
+        }
 
         return new ProductResponse(savedProduct);
     }
@@ -56,7 +94,9 @@ public class ProductService {
         product.setSku(productRequest.getSku());
         product.setCostPrice(productRequest.getCostPrice());
         product.setSalesPrice(productRequest.getSalesPrice());
-        product.setCategoryId(productRequest.getCategoryId());
+        Category category = categoryRepository.findById(productRequest.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found! ID: " + productRequest.getCategoryId()));
+        product.setCategory(category);
 
         Product updatedProduct = productRepository.save(product);
 
